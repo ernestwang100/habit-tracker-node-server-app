@@ -1,0 +1,30 @@
+{
+  "name": "habit-tracker-node-server-app",
+  "version": "1.0.0",
+  "description": "Node.js HTTP Web server for the Habitron application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ernestwang100/habit-tracker-node-server-app.git"
+  },
+  "keywords": [
+    "Node",
+    "REST",
+    "Server",
+    "HTTP",
+    "Web",
+    "Development"
+  ],
+  "author": "Yu-En Wang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ernestwang100/habit-tracker-node-server-app/issues"
+  },
+  "homepage": "https://github.com/ernestwang100/habit-tracker-node-server-app#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
