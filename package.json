@@ -1,10 +1,12 @@
 {
+  "type": "module", 
   "name": "habit-tracker-node-server-app",
   "version": "1.0.0",
   "description": "Node.js HTTP Web server for the Habitron application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node App.js"
   },
   "repository": {
     "type": "git",
