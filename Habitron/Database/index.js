@@ -1,4 +1,4 @@
-import dailyHabitLogs from "./dailyHabitLogs";
-import habits from "./habits";
+import habitLogs from "./habitLogs.js";
+import habits from "./habits.js";
 
-export default {dailyHabitLogs, habits};
+export default {habitLogs, habits};

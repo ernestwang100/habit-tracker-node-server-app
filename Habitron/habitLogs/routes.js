@@ -1,7 +1,7 @@
-import Database from "../Database";
+import Database from "../Database/index.js";
 export default function HabitLogRoutes(app) {
     app.get("/api/habitlogs", (req, res) => {
-        const logs = Database.dailyHabitLogs;
+        const logs = Database.habitLogs;
         res.send(logs);
     })
 }
