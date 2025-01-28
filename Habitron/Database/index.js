@@ -1,4 +1,4 @@
-import dates from "./dates";
+import dailyHabitLogs from "./dailyHabitLogs";
 import habits from "./habits";
 
-export default {dates, habits};
+export default {dailyHabitLogs, habits};
