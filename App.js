@@ -1,4 +1,5 @@
-const express = require('express')
-const app = express()
-app.get('/hello', (req, res) => {res.send('Hello World!')})
-app.listen(4000)
+import cors from "cors";
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.listen(4000);
