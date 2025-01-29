@@ -1,12 +1,5 @@
 import Database from "../Database/index.js";
 
-// Utility function to add habit to habit completions for all logs
-const updateHabitLogsWithNewHabit = (habitId) => {
-  Database.habitLogs.forEach(log => {
-    log.habitCompletions.push({ habitId, completed: false });
-  });
-};
-
 export default function HabitLogsRoutes(app) {
 
   // 1. Get all habit logs
@@ -71,25 +64,5 @@ export default function HabitLogsRoutes(app) {
     Database.habitLogs.splice(logIndex, 1);
 
     res.json({ message: `Habit log for ${date} deleted successfully` }); // Success response
-  });
-
-  // 5. Add a new habit (called when a new habit is added, also updates the habit logs)
-  app.post("/api/habits", (req, res) => {
-    const { name, icon } = req.body;
-
-    // Generate a new habit ID
-    const newHabit = {
-      id: Database.habits.length + 1,
-      name,
-      icon
-    };
-
-    // Add the new habit to the habits list
-    Database.habits.push(newHabit);
-
-    // Update habit logs with the new habit (add to all habit completions)
-    updateHabitLogsWithNewHabit(newHabit.id);
-
-    res.status(201).json(newHabit); // Respond with the newly created habit
   });
 }

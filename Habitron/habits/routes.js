@@ -1,5 +1,12 @@
 import Database from "../Database/index.js";
 
+// Utility function to add habit to habit completions for all logs
+const updateHabitLogsWithNewHabit = (habitId) => {
+    Database.habitLogs.forEach(log => {
+      log.habitCompletions.push({ habitId, completed: false });
+    });
+  };
+
 export default function HabitRoutes(app) {
 
   // 1. Get all habits
@@ -22,6 +29,9 @@ export default function HabitRoutes(app) {
     // Add the new habit to the database
     Database.habits.push(newHabit);
 
+    // Update habit logs with the new habit (add to all habit completions)
+    updateHabitLogsWithNewHabit(newHabit.id);
+    
     // Respond with the newly added habit
     res.status(201).json(newHabit);
   });
