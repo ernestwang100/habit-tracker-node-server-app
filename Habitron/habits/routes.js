@@ -1,82 +1,56 @@
-import Database from "../Database/index.js";
+import express from "express";
+import db from "../config/firebase-admin.js";  // Import Firestore instance
 
-// Utility function to add habit to habit completions for all logs
-const updateHabitLogsWithNewHabit = (habitId) => {
-    Database.habitLogs.forEach(log => {
-      log.habitCompletions.push({ habitId, completed: false });
-    });
-  };
+const router = express.Router();
+const habitsCollection = db.collection("habits");
 
-export default function HabitRoutes(app) {
+// 1️⃣ Get all habits
+router.get("/api/habits", async (req, res) => {
+  try {
+    const snapshot = await habitsCollection.get();
+    const habits = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    res.json(habits);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch habits", error });
+  }
+});
 
-  // 1. Get all habits
-  app.get("/api/habits", (req, res) => {
-    const habits = Database.habits;
-    res.json(habits);  // Respond with the habit list
-  });
+// 2️⃣ Add a new habit
+router.post("/api/habits", async (req, res) => {
+  const { name, icon } = req.body;
+  try {
+    const docRef = await habitsCollection.add({ name, icon });
+    res.status(201).json({ id: docRef.id, name, icon });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to add habit", error });
+  }
+});
 
-  // 2. Add a new habit
-  app.post("/api/habits", (req, res) => {
-    const { name, icon } = req.body;
+// 3️⃣ Update an existing habit by ID
+router.put("/api/habits/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, icon } = req.body;
+  
+  try {
+    const habitDoc = habitsCollection.doc(id);
+    await habitDoc.update({ name, icon });
+    res.json({ id, name, icon });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update habit", error });
+  }
+});
 
-    // Generate a new ID for the habit
-    const newHabit = {
-      id: Database.habits.length + 1,  // Simple way to create unique ID
-      name,
-      icon
-    };
-
-    // Add the new habit to the database
-    Database.habits.push(newHabit);
-
-    // Update habit logs with the new habit (add to all habit completions)
-    updateHabitLogsWithNewHabit(newHabit.id);
-    
-    // Respond with the newly added habit
-    res.status(201).json(newHabit);
-  });
-
-  // 3. Update an existing habit by ID
-  app.put("/api/habits/:id", (req, res) => {
-    const { id } = req.params;
-    const { name, icon } = req.body;
-
-    // Find the habit by ID
-    const habitIndex = Database.habits.findIndex((habit) => habit.id === parseInt(id));
-
-    if (habitIndex === -1) {
-      return res.status(404).json({ message: "Habit not found" });
-    }
-
-    // Update the habit
-    const updatedHabit = {
-      ...Database.habits[habitIndex],
-      name: name || Database.habits[habitIndex].name,
-      icon: icon || Database.habits[habitIndex].icon
-    };
-
-    Database.habits[habitIndex] = updatedHabit;
-
-    // Respond with the updated habit
-    res.json(updatedHabit);
-  });
-
-  // 4. Delete a habit by ID
-  app.delete("/api/habits/:id", (req, res) => {
-    const { id } = req.params;
-
-    // Find the habit by ID
-    const habitIndex = Database.habits.findIndex((habit) => habit.id === parseInt(id));
-
-    if (habitIndex === -1) {
-      return res.status(404).json({ message: "Habit not found" });
-    }
-
-    // Remove the habit from the list
-    Database.habits.splice(habitIndex, 1);
-
-    // Respond with a success message
+// 4️⃣ Delete a habit by ID
+router.delete("/api/habits/:id", async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const habitDoc = habitsCollection.doc(id);
+    await habitDoc.delete();
     res.json({ message: `Habit with ID ${id} deleted` });
-  });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete habit", error });
+  }
+});
 
-}
+export default router;
