@@ -5,7 +5,7 @@ const router = express.Router();
 const habitsCollection = db.collection("habits");
 
 // 1️⃣ Get all habits
-router.get("/api/habits", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const snapshot = await habitsCollection.get();
     const habits = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -16,7 +16,7 @@ router.get("/api/habits", async (req, res) => {
 });
 
 // 2️⃣ Add a new habit
-router.post("/api/habits", async (req, res) => {
+router.post("/", async (req, res) => {
   const { name, icon } = req.body;
   try {
     const docRef = await habitsCollection.add({ name, icon });
@@ -27,7 +27,7 @@ router.post("/api/habits", async (req, res) => {
 });
 
 // 3️⃣ Update an existing habit by ID
-router.put("/api/habits/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { name, icon } = req.body;
   
@@ -41,7 +41,7 @@ router.put("/api/habits/:id", async (req, res) => {
 });
 
 // 4️⃣ Delete a habit by ID
-router.delete("/api/habits/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   
   try {
