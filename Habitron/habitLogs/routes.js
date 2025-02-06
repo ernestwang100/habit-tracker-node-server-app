@@ -7,71 +7,81 @@ const habitLogsCollection = db.collection("habitLogs");
 // 1. Get all habit logs
 router.get("/", async (req, res) => {
   try {
-    const snapshot = await habitLogsCollection.get();  // Await the promise to get the data
-    const habitLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));  // Map to extract data and add doc id
+    const snapshot = await habitLogsCollection.get();  // Fetch data from Firestore
+    const habitLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));  // Map to add document IDs
     res.json(habitLogs);  // Send the habit log entries as response
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch habit logs", error });  // Handle errors properly
+    res.status(500).json({ message: "Failed to fetch habit logs", error });
   }
 });
 
 // 2. Add a new habit log entry
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { date, habitCompletions } = req.body;
 
-  // Create a new habit log entry
-  const newLog = {
-    date,
-    habitCompletions: habitCompletions || [], // habitCompletions should be an array of { habitId, completed }
-    streakDays: 0, // initial streak days, can be updated later
-    allHabitsCompleted: habitCompletions?.every((h) => h.completed) ?? false, // check if all habits are completed
-  };
-
-  Database.habitLogs.push(newLog);
-  res.status(201).json(newLog); // Respond with the newly created habit log entry
+  try {
+    // Create a new habit log entry in Firestore
+    const newLogRef = await habitLogsCollection.add({
+      date,
+      habitCompletions: habitCompletions || [],
+      streakDays: 0,  // Initial streak days
+      allHabitsCompleted: habitCompletions.every(h => h.completed)  // Check if all habits are completed
+    });
+    
+    const newLog = { id: newLogRef.id, date, habitCompletions };
+    res.status(201).json(newLog);  // Respond with the newly created habit log entry
+  } catch (error) {
+    res.status(500).json({ message: "Failed to add habit log", error });
+  }
 });
 
-// 3. Update an existing habit log entry
-router.put("/:date", (req, res) => {
+// 3. Update an existing habit log entry by date
+router.put("/:date", async (req, res) => {
   const { date } = req.params;
   const { habitCompletions, streakDays, allHabitsCompleted } = req.body;
 
-  // Find the habit log by date
-  const logIndex = Database.habitLogs.findIndex((log) => log.date === date);
+  try {
+    // Find the habit log by date
+    const logDoc = habitLogsCollection.doc(date);  // Assuming date is unique for each log
+    const logSnapshot = await logDoc.get();
 
-  if (logIndex === -1) {
-    return res.status(404).json({ message: "Habit log not found" });
+    if (!logSnapshot.exists) {
+      return res.status(404).json({ message: "Habit log not found" });
+    }
+
+    // Update the habit log entry
+    await logDoc.update({
+      habitCompletions: habitCompletions || logSnapshot.data().habitCompletions,
+      streakDays: streakDays !== undefined ? streakDays : logSnapshot.data().streakDays,
+      allHabitsCompleted: allHabitsCompleted !== undefined ? allHabitsCompleted : logSnapshot.data().allHabitsCompleted
+    });
+
+    res.json({ date, habitCompletions, streakDays, allHabitsCompleted });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update habit log", error });
   }
-
-  // Update the habit log entry
-  const updatedLog = {
-    ...Database.habitLogs[logIndex],
-    habitCompletions: habitCompletions || Database.habitLogs[logIndex].habitCompletions,
-    streakDays: streakDays ?? Database.habitLogs[logIndex].streakDays,
-    allHabitsCompleted: allHabitsCompleted ?? Database.habitLogs[logIndex].allHabitsCompleted,
-  };
-
-  Database.habitLogs[logIndex] = updatedLog;
-
-  res.json(updatedLog); // Respond with the updated habit log entry
 });
 
 // 4. Delete a habit log entry by date
-router.delete("/:date", (req, res) => {
+router.delete("/:date", async (req, res) => {
   const { date } = req.params;
 
-  // Find the habit log by date
-  const logIndex = Database.habitLogs.findIndex((log) => log.date === date);
+  try {
+    // Find the habit log by date
+    const logDoc = habitLogsCollection.doc(date);  // Assuming date is unique for each log
+    const logSnapshot = await logDoc.get();
 
-  if (logIndex === -1) {
-    return res.status(404).json({ message: "Habit log not found" });
+    if (!logSnapshot.exists) {
+      return res.status(404).json({ message: "Habit log not found" });
+    }
+
+    // Delete the habit log entry
+    await logDoc.delete();
+
+    res.json({ message: `Habit log for ${date} deleted successfully` });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete habit log", error });
   }
-
-  // Remove the habit log entry from the database
-  Database.habitLogs.splice(logIndex, 1);
-
-  res.json({ message: `Habit log for ${date} deleted successfully` }); // Success response
 });
 
-// Export the router
 export default router;
