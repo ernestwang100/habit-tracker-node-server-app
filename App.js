@@ -12,7 +12,7 @@ app.use("/api/habitlogs", habitLogRoutes);
 app.use("/api/habits", habitRoutes);
 
 // Start the server
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;  // Use environment port or fallback to 4000
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
