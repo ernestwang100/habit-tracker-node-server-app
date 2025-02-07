@@ -36,13 +36,13 @@ router.post("/", async (req, res) => {
 });
 
 // 3. Update an existing habit log entry by date
-router.put("/:date", async (req, res) => {
-  const { date } = req.params;
-  const { habitCompletions, streakDays, allHabitsCompleted } = req.body;
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { date, habitCompletions, streakDays, allHabitsCompleted } = req.body;
 
   try {
     // Find the habit log by date
-    const logDoc = habitLogsCollection.doc(date);  // Assuming date is unique for each log
+    const logDoc = habitLogsCollection.doc(id); 
     const logSnapshot = await logDoc.get();
 
     if (!logSnapshot.exists) {
@@ -51,24 +51,25 @@ router.put("/:date", async (req, res) => {
 
     // Update the habit log entry
     await logDoc.update({
+      date: date !== undefined ? date : logSnapshot.data().date,
       habitCompletions: habitCompletions || logSnapshot.data().habitCompletions,
       streakDays: streakDays !== undefined ? streakDays : logSnapshot.data().streakDays,
       allHabitsCompleted: allHabitsCompleted !== undefined ? allHabitsCompleted : logSnapshot.data().allHabitsCompleted
     });
 
-    res.json({ date, habitCompletions, streakDays, allHabitsCompleted });
+    res.json({ id, date, habitCompletions, streakDays, allHabitsCompleted });
   } catch (error) {
     res.status(500).json({ message: "Failed to update habit log", error });
   }
 });
 
 // 4. Delete a habit log entry by date
-router.delete("/:date", async (req, res) => {
-  const { date } = req.params;
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
 
   try {
     // Find the habit log by date
-    const logDoc = habitLogsCollection.doc(date);  // Assuming date is unique for each log
+    const logDoc = habitLogsCollection.doc(id);  // Assuming date is unique for each log
     const logSnapshot = await logDoc.get();
 
     if (!logSnapshot.exists) {
@@ -78,7 +79,7 @@ router.delete("/:date", async (req, res) => {
     // Delete the habit log entry
     await logDoc.delete();
 
-    res.json({ message: `Habit log for ${date} deleted successfully` });
+    res.json({ message: `Habit log for ${id} deleted successfully` });
   } catch (error) {
     res.status(500).json({ message: "Failed to delete habit log", error });
   }
