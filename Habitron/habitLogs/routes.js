@@ -1,5 +1,5 @@
 import express from "express";
-import db from "../config/firebase-admin.js";  // Import Firestore instance
+import db from "../config/firebase-admin.js";  // Import firestone instance
 
 const router = express.Router();
 const habitLogsCollection = db.collection("habitLogs");
@@ -69,6 +69,7 @@ router.put("/batchUpdate", async (req, res) => {
 
 // 3. Update an existing habit log entry by ID
 router.put("/:id", async (req, res) => {
+  console.log(req.body);
   const { id } = req.params;
   const { date, habitCompletions, streakDays, allHabitsCompleted } = req.body;
 

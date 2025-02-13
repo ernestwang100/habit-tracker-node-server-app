@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import habitLogRoutes from "./Habitron/habitLogs/routes.js";
 import habitRoutes from "./Habitron/habits/routes.js";
+import colorsRoutes from "./Habitron/colors/routes.js";
 const app = express();
 app.use(cors());
 // Add middleware to parse JSON body
@@ -10,6 +11,7 @@ app.use(express.json());  // This is the key line that ensures `req.body` is par
 // Register routes with prefixes
 app.use("/api/habitlogs", habitLogRoutes);
 app.use("/api/habits", habitRoutes);
+app.use("/api/colors", colorsRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 4000;  // Use environment port or fallback to 4000
