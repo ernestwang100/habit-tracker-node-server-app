@@ -14,7 +14,7 @@ app.use(express.json());  // This is the key line that ensures `req.body` is par
 app.use("/api/habitlogs", habitLogRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/colors", colorsRoutes);
-app.use("/api/users", usersRoutes);
+app.use("/api/auth", usersRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 4000;  // Use environment port or fallback to 4000
