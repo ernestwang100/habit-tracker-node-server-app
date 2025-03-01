@@ -4,6 +4,8 @@ import habitLogRoutes from "./Habitron/habitLogs/routes.js";
 import habitRoutes from "./Habitron/habits/routes.js";
 import colorsRoutes from "./Habitron/colors/routes.js";
 import usersRoutes from "./Habitron/users/routes.js";
+import itineraryRouter from "./Habitron/routes/itineraryRouter.js"
+import scheduleRouter from "./Habitron/routes/scheduleRouter.js"
 
 const app = express();
 app.use(cors());
@@ -15,6 +17,8 @@ app.use("/api/habitlogs", habitLogRoutes);
 app.use("/api/habits", habitRoutes);
 app.use("/api/colors", colorsRoutes);
 app.use("/api/auth", usersRoutes);
+app.use("/api/itinerary", itineraryRouter);
+app.use("/api/schedule", scheduleRouter);
 
 // Start the server
 const PORT = process.env.PORT || 4000;  // Use environment port or fallback to 4000
