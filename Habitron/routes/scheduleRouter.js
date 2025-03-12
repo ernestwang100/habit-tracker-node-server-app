@@ -66,4 +66,29 @@ router.delete("/", async (req, res) => {
   }
 });
 
+// 4️⃣ Update schedule preferences (startTime, interval, weekStart)
+router.put("/preferences", async (req, res) => {
+  const { userId, startTime, interval, weekStart } = req.body;
+
+  if (!userId || !startTime || !interval || !weekStart) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    // Check if preferences already exist for the user
+    const snapshot = await scheduleCollection.where("userId", "==", userId).get();
+    if (!snapshot.empty) {
+      const preferencesDoc = snapshot.docs[0];
+      await preferencesDoc.ref.update({ startTime, interval, weekStart });
+      res.json({ userId, startTime, interval, weekStart });
+    } else {
+      // Add new preferences if they don't exist
+      const docRef = await scheduleCollection.add({ userId, startTime, interval, weekStart });
+      res.status(201).json({ id: docRef.id, userId, startTime, interval, weekStart });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update schedule preferences", error });
+  }
+});
+
 export default router;
