@@ -75,20 +75,23 @@ router.put("/preferences", async (req, res) => {
   }
 
   try {
-    // Check if preferences already exist for the user
+    console.log(`Updating preferences for userId: ${userId}, startTime: ${startTime}, interval: ${interval}, weekStart: ${weekStart}`);
     const snapshot = await scheduleCollection.where("userId", "==", userId).get();
     if (!snapshot.empty) {
       const preferencesDoc = snapshot.docs[0];
       await preferencesDoc.ref.update({ startTime, interval, weekStart });
+      console.log("Updated schedule preferences:", { startTime, interval, weekStart });
       res.json({ userId, startTime, interval, weekStart });
     } else {
-      // Add new preferences if they don't exist
       const docRef = await scheduleCollection.add({ userId, startTime, interval, weekStart });
+      console.log(`Created new preferences entry: ${docRef.id}`);
       res.status(201).json({ id: docRef.id, userId, startTime, interval, weekStart });
     }
   } catch (error) {
+    console.error("Failed to update schedule preferences:", error);
     res.status(500).json({ message: "Failed to update schedule preferences", error });
   }
 });
+
 
 export default router;
