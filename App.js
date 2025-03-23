@@ -6,7 +6,7 @@ import colorsRoutes from "./Habitron/colors/routes.js";
 import usersRoutes from "./Habitron/users/routes.js";
 import itineraryRouter from "./Habitron/routes/itineraryRouter.js"
 import scheduleRouter from "./Habitron/routes/scheduleRouter.js"
-import colorRouter from "./Habitron/routes/colorRouter";
+import colorRouter from "./Habitron/routes/colorRouter.js";
 
 const app = express();
 app.use(cors());
